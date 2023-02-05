@@ -4,6 +4,9 @@ module.exports = {
     "*"
   ],
   theme: {
+    fontFamily: {
+      mono: ['Roboto Mono', 'monospace']
+    },
     extend: {},
   },
   plugins: [],
