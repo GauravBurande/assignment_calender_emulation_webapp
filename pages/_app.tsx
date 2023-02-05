@@ -6,8 +6,8 @@ import type { AppProps } from 'next/app'
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
-    <Head>
-        <title>Apple Replica</title>
+      <Head>
+        <title>Calender Emulation</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
