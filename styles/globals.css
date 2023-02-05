@@ -13,6 +13,7 @@ html {
     -ms-overflow-style: none;
     scrollbar-width: none;
     box-sizing: border-box;
+    background-color: rgb(220, 220, 220);
 }
 
 body ::-webkit-scrollbar {
