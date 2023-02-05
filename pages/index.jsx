@@ -1,8 +1,9 @@
 import { useRouter } from "next/router"
-import { useEffect } from "react"
+import { useEffect, useContext } from "react"
 import { BsGoogle } from "react-icons/bs"
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth, Provider } from "../firebase"
+import UserContext from "../context/UserContext";
 
 const Home = () => {
 
@@ -18,10 +19,18 @@ const Home = () => {
     })
   }, [])
 
+  const context = useContext(UserContext)
+  const { setUserData } = context
+
   const handleAuth = async () => {
     signInWithPopup(auth, Provider).then(async (result) => {
-      const credential = GoogleAuthProvider.credentialFromResult(result);
       const user = result.user;
+      await setUserData({
+        "name": user.displayName,
+        "avatar": user.photoURL,
+        "email": user.email,
+        "phone": user.phoneNumber
+      })
 
       localStorage.setItem('userEmail', user.email)
     })

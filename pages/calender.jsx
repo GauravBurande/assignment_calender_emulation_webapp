@@ -1,7 +1,9 @@
 import { useRouter } from "next/router";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { FiLogOut } from "react-icons/fi"
 import { auth } from "../firebase"
+import UserContext from "../context/UserContext";
+import Image from "next/image";
 
 export default function Calender() {
 
@@ -24,22 +26,27 @@ export default function Calender() {
         })
     }
 
+    const context = useContext(UserContext)
+    const { userData } = context
+
     return (
         <div>
             <div className="flex items-center justify-between flex-wrap py-8 px-4">
-                <div className="hidden lg:flex flex-col shadow-2xl rounded-lg bg-gray-500 p-10 h-[85vh] my-auto w-60">
-                    <p>this is</p>
-                    <p>this is</p>
-                    <p>this is</p>
-                    <p>this is</p>
-                    <p>this is</p>
-                    <p>this is</p>
-                    <p>this is</p>
-                    <p>this is</p>
-                    <p>this is</p>
+                <div className="hidden lg:flex flex-col justify-between items-center shadow-2xl rounded-lg bg-gray-500 p-10 h-[85vh] my-auto w-60">
+                    <div>
+                        <Image
+                            className="rounded-full"
+                            src={userData.avatar}
+                            width={100}
+                            height={100}
+                        />
+                    </div>
+                    <div onClick={signOut}>
+                        <p className="flex items-center justify-center cursor-pointer">Sign Out <FiLogOut className="ml-1" /></p>
+                    </div>
                 </div>
 
-                <div className="hidden w-96 bg-black lg:block">
+                <div className="hidden w-[30vw] bg-black lg:block">
                     you don't have any meetings for now. Add meetings to display your meetings here by clicking on the date of the meeting you want to add.
                 </div>
 
@@ -300,7 +307,15 @@ export default function Calender() {
 
             <div className="flex items-center h-16 justify-between mx-auto bg-gray-200 shadow-2xl w-[80vw] md:hidden py-3 px-6 rounded-full">
                 <div>
-                    image
+                    <Image
+                        className="rounded-full"
+                        src={userData.avatar}
+                        width={50}
+                        height={50}
+                    />
+                </div>
+                <div>
+                    <p>{userData.email}</p>
                 </div>
                 <div onClick={signOut}>
                     <p className="flex items-center justify-center cursor-pointer">Sign Out <FiLogOut className="ml-1" /></p>
