@@ -1,11 +1,46 @@
-import React from "react";
+import { useRouter } from "next/router";
+import React, { useEffect } from "react";
+import { FiLogOut } from "react-icons/fi"
+import { auth } from "../firebase"
 
 export default function Calender() {
+
+    const userEmail = typeof window !== "undefined" && window.localStorage.getItem('userEmail')
+
+    useEffect(() => {
+        if (!userEmail) {
+            router.push('/')
+        }
+    }, [])
+
+    const router = useRouter()
+
+    const signOut = () => {
+        auth.signOut().then(() => {
+            localStorage.removeItem('userEmail')
+            router.push('/');
+        }).catch((error) => {
+            alert(error.message)
+        })
+    }
+
     return (
         <div>
             <div className="flex items-center justify-between flex-wrap py-8 px-4">
-                <div className="hidden pl-40 lg:block">
-                    hello world
+                <div className="hidden lg:flex flex-col shadow-2xl rounded-lg bg-gray-500 p-10 h-[85vh] my-auto w-60">
+                    <p>this is</p>
+                    <p>this is</p>
+                    <p>this is</p>
+                    <p>this is</p>
+                    <p>this is</p>
+                    <p>this is</p>
+                    <p>this is</p>
+                    <p>this is</p>
+                    <p>this is</p>
+                </div>
+
+                <div className="hidden w-96 bg-black lg:block">
+                    you don't have any meetings for now. Add meetings to display your meetings here by clicking on the date of the meeting you want to add.
                 </div>
 
                 <div className="2xl:w-1/3 xl:w-1/2 lg:w-3/5 lg:-translate-x-28 sm:w-4/5 w-full shadow-lg">
@@ -263,8 +298,13 @@ export default function Calender() {
 
             </div>
 
-            <div className="flex items-center h-16 justify-center mx-auto bg-gray-200 shadow-2xl w-[80vw] md:hidden py-3 px-6 rounded-full">
-                this is a comment
+            <div className="flex items-center h-16 justify-between mx-auto bg-gray-200 shadow-2xl w-[80vw] md:hidden py-3 px-6 rounded-full">
+                <div>
+                    image
+                </div>
+                <div onClick={signOut}>
+                    <p className="flex items-center justify-center cursor-pointer">Sign Out <FiLogOut className="ml-1" /></p>
+                </div>
             </div>
         </div>
     );
