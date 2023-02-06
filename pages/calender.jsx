@@ -25,7 +25,7 @@ export default function Calender() {
     const [displayAllMeetings, setDisplayAllMeetings] = useState(false)
     const [displayMeeting, setDisplayMeeting] = useState(false)
     const [meeting, setMeeting] = useState({ date: "", title: "", description: "", startTime: "", endTime: "" })
-    const [allmeetingsData, setAllMeetingsData] = useState(false)
+    const [allmeetingsData, setAllMeetingsData] = useState([])
     const [fetchMeets, setFetchMeets] = useState(1)
 
     const meetingDates = []
@@ -61,7 +61,8 @@ export default function Calender() {
         }
         try {
             const meetingRef = collection(db, "meetingData");
-            await setDoc(doc(meetingRef, meeting.title), meetingData).then((data) => { toggleDisplayOfMeeting(), setFetchMeets(Math.random()) })
+            await setDoc(doc(meetingRef, meeting.title), meetingData).then((data) => { setFetchMeets(Math.random()) })
+            toggleDisplayOfMeeting()
         } catch (e) {
             console.error("Error adding document: ", e);
         }
@@ -69,8 +70,12 @@ export default function Calender() {
 
     const deleteMeeting = async (doctitle) => {
         await deleteDoc(doc(db, "meetingData", doctitle))
-        toggleDisplayAll()
         setFetchMeets(Math.random())
+    }
+
+    const editMeeting = async (meetingData) => {
+        setMeeting(meetingData)
+        setDisplayMeeting(true)
     }
 
     useEffect(() => {
@@ -373,7 +378,7 @@ export default function Calender() {
                         height={50}
                     />
                 </div>
-                <div className="cursor-pointer" onClick={toggleDisplayAll}>
+                <div className="cursor-pointer underline hover:underline-offset-4" onClick={toggleDisplayAll}>
                     see all meetings
                 </div>
                 <div onClick={signOut}>
@@ -384,13 +389,13 @@ export default function Calender() {
             {
                 displayAllMeetings && <div className="absolute transition-all duration-200 inset-0 flex min-h-[100vh] w-full items-center justify-center z-20 bg-white">
 
-                    {allmeetingsData
-                        ? <div className="w-[75vw] flex flex-col items-center mt-44 h-[60vh] overflow-scroll">
+                    {allmeetingsData.length !== 0
+                        ? <div className="md:w-[75vw] w-[80vw] flex flex-col items-center mt-44 h-[60vh] overflow-scroll">
                             {
                                 allmeetingsData.map((meetingData, index) => {
                                     return (
                                         <div key={index}>
-                                            <div className="md:w-[50vw] relative w-[70vw] my-3 rounded-2xl px-16 py-4 bg-gray-300">
+                                            <div className="md:w-[50vw] relative w-[70vw] my-3 rounded-2xl px-10 md:px-16 py-4 bg-gray-300">
                                                 <div className="flex items-center justify-between">
                                                     <div className="font-bold text-xl">
                                                         {meetingData.meeting.title}
@@ -407,13 +412,12 @@ export default function Calender() {
                                                 <div className="absolute group top-4 right-4">
                                                     <BsThreeDotsVertical />
 
-                                                    <div className="absolute space-y-2 top-0 opacity-0 group-hover:opacity-100 p-3 rounded-xl bg-gray-500 cursor-pointer">
+                                                    <div className="absolute space-y-2 top-0 -left-5 md: opacity-0 group-hover:opacity-100 p-3 rounded-xl bg-gray-500 cursor-pointer">
                                                         <div onClick={() => { deleteMeeting(meetingData.meeting.title) }}>
                                                             delete
                                                         </div>
-                                                        <div className="group">
+                                                        <div onClick={() => { editMeeting(meetingData.meeting) }} className="group">
                                                             edit
-                                                            <div></div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -437,14 +441,14 @@ export default function Calender() {
                 displayMeeting && <div className="absolute transition-all duration-200 inset-0 flex flex-col min-h-[100vh] w-full items-center justify-center z-20 bg-white">
                     <div className="text-3xl px-32">
                         {/* You don't have any meeting today. */}
-                        <p className="font-bold py-5">Add Meeting</p>
+                        {/* <p className="font-bold py-5">Add Meeting</p> */}
                     </div>
 
                     <div>
-                        <div>
+                        <div className="mt-10">
                             <div>
                                 <label className="w-3/4" htmlFor="date">date (only DD)</label>
-                                <input onChange={handleChange} value={meeting.data} className="bg-gray-300 px-6 rounded-xl shadow-md my-2 py-2 w-full outline-none" type="text" name="date" id="date" />
+                                <input onChange={handleChange} value={meeting.date} className="bg-gray-300 px-6 rounded-xl shadow-md my-2 py-2 w-full outline-none" type="text" name="date" id="date" />
                             </div>
                             <div>
                                 <label htmlFor="title">title</label>
@@ -463,12 +467,12 @@ export default function Calender() {
                                 <input onChange={handleChange} value={meeting.endTime} className="bg-gray-300 px-6 rounded-xl shadow-md my-2 py-2 w-full outline-none" type="text" name="endTime" id="endTime" />
                             </div>
                             <div>
-                                <p onClick={handleAdd} className="px-4 py-2 bg-gray-300 hover:bg-gradient-to-br from-violet-200 to-pink-200 my-6 shadow-2xl rounded-full cursor-pointer w-fit ">add</p>
+                                <p onClick={handleAdd} className="px-4 py-2 bg-gray-300 hover:bg-gradient-to-br from-violet-200 to-pink-200 my-6 shadow-2xl rounded-full cursor-pointer w-fit ">submit</p>
                             </div>
                         </div>
                     </div>
 
-                    <div onClick={toggleDisplayOfMeeting} className="absolute md:right-96 right-20 top-16 md:top-32 shadow-md rounded-full p-3 cursor-pointer">
+                    <div onClick={toggleDisplayOfMeeting} className="absolute md:right-24 lg:right-52 right-10 top-2 md:top-14 shadow-md rounded-full p-3 cursor-pointer">
                         <GrClose />
                     </div>
                 </div>
