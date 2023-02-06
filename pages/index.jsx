@@ -25,12 +25,14 @@ const Home = () => {
   const handleAuth = async () => {
     signInWithPopup(auth, Provider).then(async (result) => {
       const user = result.user;
-      await setUserData({
-        "name": user.displayName,
-        "avatar": user.photoURL,
-        "email": user.email,
-        "phone": user.phoneNumber
-      })
+
+      const userInfo = {
+        name: user.displayName,
+        avatar: user.photoURL,
+        email: user.email,
+        phone: user.phoneNumber
+      }
+      await setUserData(userInfo)
 
       localStorage.setItem('userEmail', user.email)
     })
