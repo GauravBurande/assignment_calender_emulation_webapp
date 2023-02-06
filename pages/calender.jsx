@@ -118,7 +118,7 @@ export default function Calender() {
                     <div className="md:py-16 md:pb-12 p-5 dark:bg-gray-800 rounded-xl bg-white">
                         <div className="px-4 flex items-center justify-between">
                             <h1 className="text-2xl font-bold dark:text-gray-100 text-gray-800">February 2023</h1>
-                            <p onClick={toggleDisplayOfMeeting} className="bg-gray-500 text-white font-bold py-2 px-4 rounded-full cursor-pointer ml-4 hover:bg-gradient-to-br from-violet-200 to-pink-200 hover:text-black">Book A Meeting</p>
+                            <p onClick={toggleDisplayOfMeeting} className="bg-gray-500 text-center text-white font-bold py-2 px-4 rounded-full cursor-pointer ml-4 hover:bg-gradient-to-br from-violet-200 to-pink-200 hover:text-black">Book A Meeting</p>
 
                         </div>
                         <div className="flex items-center justify-between pt-12 overflow-x-auto">
