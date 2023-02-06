@@ -2,10 +2,11 @@ import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 import { FiLogOut } from "react-icons/fi"
 import { GrClose } from "react-icons/gr"
+import { BsThreeDotsVertical } from "react-icons/bs"
 import db, { auth } from "../firebase"
 import UserContext from "../context/UserContext";
 import Image from "next/image";
-import { collection, doc, setDoc } from "firebase/firestore/lite";
+import { collection, deleteDoc, doc, getDocs, query, setDoc, where } from "firebase/firestore/lite";
 
 export default function Calender() {
 
@@ -17,16 +18,20 @@ export default function Calender() {
         }
     }, [])
 
-    useEffect
-
     const context = useContext(UserContext)
     const { userData } = context
     const router = useRouter()
 
     const [displayAllMeetings, setDisplayAllMeetings] = useState(false)
     const [displayMeeting, setDisplayMeeting] = useState(false)
-    const [meeting, setMeeting] = useState({ date: "", title: "", description: "" })
-    const [AllmeetingsData, setAllMeetingsData] = useState([])
+    const [meeting, setMeeting] = useState({ date: "", title: "", description: "", startTime: "", endTime: "" })
+    const [allmeetingsData, setAllMeetingsData] = useState(false)
+    const [fetchMeets, setFetchMeets] = useState(1)
+
+    const meetingDates = []
+    allmeetingsData && allmeetingsData.forEach((meeting) => {
+        meetingDates.push(parseInt(meeting.meeting.date))
+    })
 
     const handleChange = (e) => {
         setMeeting({ ...meeting, [e.target.name]: e.target.value })
@@ -51,16 +56,37 @@ export default function Calender() {
 
     const handleAdd = async () => {
         const meetingData = {
-            email: userData.email,
+            email: userData ? userData.email : userEmail,
             meeting
         }
         try {
             const meetingRef = collection(db, "meetingData");
-            await setDoc(doc(meetingRef, meeting.title), meetingData).then((data) => { toggleDisplayOfMeeting() })
+            await setDoc(doc(meetingRef, meeting.title), meetingData).then((data) => { toggleDisplayOfMeeting(), setFetchMeets(Math.random()) })
         } catch (e) {
             console.error("Error adding document: ", e);
         }
     }
+
+    const deleteMeeting = async (doctitle) => {
+        await deleteDoc(doc(db, "meetingData", doctitle))
+        toggleDisplayAll()
+        setFetchMeets(Math.random())
+    }
+
+    useEffect(() => {
+        const q = query(collection(db, "meetingData"), where("email", "==", userData ? userData.email : userEmail));
+
+        const fetchData = async () => {
+            const querySnapshot = await getDocs(q);
+            let meetsData = []
+            querySnapshot.forEach((doc) => {
+                meetsData.push(doc.data());
+            });
+            setAllMeetingsData(meetsData)
+            console.log("fetching meetings...");
+        }
+        fetchData()
+    }, [fetchMeets])
 
     return (
         <div>
@@ -70,12 +96,12 @@ export default function Calender() {
                         <Image
                             className="rounded-full"
                             src={userData ? userData.avatar : '/favicon.ico'}
-                            alt={userData && userData.name}
+                            alt={userData ? userData.name : 'calender'}
                             width={100}
                             height={100}
                         />
                     </div>
-                    <div onClick={toggleDisplayAll} className="bg-gray-700 cursor-pointer rounded-full p-3 shadow-md">
+                    <div onClick={toggleDisplayAll} className="bg-gray-700 hover:bg-gradient-to-br from-violet-200 to-pink-200 hover:text-black cursor-pointer rounded-full p-3 shadow-md">
                         see all meetings
                     </div>
                     <div onClick={signOut}>
@@ -87,18 +113,7 @@ export default function Calender() {
                     <div className="md:py-16 md:pb-12 p-5 dark:bg-gray-800 rounded-xl bg-white">
                         <div className="px-4 flex items-center justify-between">
                             <h1 className="text-2xl font-bold dark:text-gray-100 text-gray-800">February 2023</h1>
-                            <p onClick={toggleDisplayOfMeeting} className="bg-gray-500 text-white font-bold py-2 px-4 rounded-full cursor-pointer ml-4">Book A Meeting</p>
-
-                            {/* <div className="flex items-center text-gray-800 dark:text-gray-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-chevron-left" width={24} height={24} viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <polyline points="15 6 9 12 15 18" />
-                                </svg>
-                                <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler ml-3 icon-tabler-chevron-right" width={24} height={24} viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <polyline points="9 6 15 12 9 18" />
-                                </svg>
-                            </div> */}
+                            <p onClick={toggleDisplayOfMeeting} className="bg-gray-500 text-white font-bold py-2 px-4 rounded-full cursor-pointer ml-4 hover:bg-gradient-to-br from-violet-200 to-pink-200 hover:text-black">Book A Meeting</p>
 
                         </div>
                         <div className="flex items-center justify-between pt-12 overflow-x-auto">
@@ -151,191 +166,191 @@ export default function Calender() {
                                             <div className="px-4 py-4 cursor-pointer flex w-full justify-center" />
                                         </td>
                                         <td className="pt-6">
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">1</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(1) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td className="pt-6">
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">2</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(2) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td className="pt-6">
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100">3</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(2) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td className="pt-6">
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100">4</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(4) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td className="pt-6">
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">5</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(5) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">6</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(6) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">7</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(7) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">8</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(8) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">9</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(9) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100">10</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(10) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100">11</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(11) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">12</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(12) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">13</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(13) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">14</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(14) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">15</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(15) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">16</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(16) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100">17</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(17) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100">18</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(18) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">19</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(19) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">20</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(20) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">21</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(21) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">22</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(22) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">23</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(23) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100">24</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(24) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100">25</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(25) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">26</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(26) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">27</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(27) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">28</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(28) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">29</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(29) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td>
-                                            <div className="px-4 hover:underline decoration-white relative py-4 cursor-pointer flex w-full justify-center">
+                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100 ">30</p>
-                                                <div className="p-1 rounded-full h-fit bg-blue-500"></div>
+                                                {meetingDates.includes(30) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                     </tr>
@@ -343,25 +358,6 @@ export default function Calender() {
                             </table>
                         </div>
                     </div>
-
-                    {/* <div className="md:py-8 py-5 md:px-16 px-5 dark:bg-gray-700 bg-gray-50 rounded-b">
-                        <div className="px-4">
-                            <div className="border-b pb-4 border-gray-400 border-dashed">
-                                <p className="text-xs font-light leading-3 text-gray-500 dark:text-gray-300">9:00 AM</p>
-                                <p className="text-lg  leading-5 text-gray-800 dark:text-gray-100 pt-2">Zoom call with design team</p>
-                                <p className="text-sm pt-2 leading-4 text-gray-600 dark:text-gray-300">Discussion on UX sprint and Wireframe review</p>
-                            </div>
-                            <div className="border-b pb-4 border-gray-400 border-dashed pt-5">
-                                <p className="text-xs font-light leading-3 text-gray-500 dark:text-gray-300">10:00 AM</p>
-                                <p className="text-lg  leading-5 text-gray-800 dark:text-gray-100 pt-2">Orientation session with new hires</p>
-                            </div>
-                            <div className="border-b pb-4 border-gray-400 border-dashed pt-5">
-                                <p className="text-xs font-light leading-3 text-gray-500 dark:text-gray-300">9:00 AM</p>
-                                <p className="text-lg  leading-5 text-gray-800 dark:text-gray-100 pt-2">Zoom call with design team</p>
-                                <p className="text-sm pt-2 leading-4 text-gray-600 dark:text-gray-300">Discussion on UX sprint and Wireframe review</p>
-                            </div>
-                        </div>
-                    </div> */}
 
                 </div>
 
@@ -372,7 +368,7 @@ export default function Calender() {
                     <Image
                         className="rounded-full"
                         src={userData ? userData.avatar : '/favicon.ico'}
-                        alt={userData && userData.name}
+                        alt={userData ? userData.name : 'calender'}
                         width={50}
                         height={50}
                     />
@@ -387,10 +383,51 @@ export default function Calender() {
 
             {
                 displayAllMeetings && <div className="absolute transition-all duration-200 inset-0 flex min-h-[100vh] w-full items-center justify-center z-20 bg-white">
-                    <div className="text-3xl lg:w-2/3 px-32">
-                        You don't have any meeting for now, please book a meeting.
-                    </div>
-                    <div onClick={toggleDisplayAll} className="absolute md:right-96 right-20 top-16 md:top-32 shadow-md rounded-full p-3 cursor-pointer">
+
+                    {allmeetingsData
+                        ? <div className="w-[75vw] flex flex-col items-center mt-44 h-[60vh] overflow-scroll">
+                            {
+                                allmeetingsData.map((meetingData, index) => {
+                                    return (
+                                        <div key={index}>
+                                            <div className="md:w-[50vw] relative w-[70vw] my-3 rounded-2xl px-16 py-4 bg-gray-300">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="font-bold text-xl">
+                                                        {meetingData.meeting.title}
+                                                    </div>
+                                                    <div className="text-sm">
+                                                        <p>{meetingData.meeting.date} February, 2023</p>
+                                                        <p>{meetingData.meeting.startTime} - {meetingData.meeting.endTime}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="w-2/3 py-6">
+                                                    {meetingData.meeting.description}
+                                                </div>
+
+                                                <div className="absolute group top-4 right-4">
+                                                    <BsThreeDotsVertical />
+
+                                                    <div className="absolute space-y-2 top-0 opacity-0 group-hover:opacity-100 p-3 rounded-xl bg-gray-500 cursor-pointer">
+                                                        <div onClick={() => { deleteMeeting(meetingData.meeting.title) }}>
+                                                            delete
+                                                        </div>
+                                                        <div className="group">
+                                                            edit
+                                                            <div></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )
+                                })
+                            }
+                        </div>
+                        : <div className="text-3xl lg:w-2/3 px-32">
+                            You don't have any meeting for now, please book a meeting.
+                        </div>}
+
+                    <div onClick={toggleDisplayAll} className="absolute md:right-72 right-20 top-16 md:top-12 shadow-md rounded-full p-3 cursor-pointer">
                         <GrClose />
                     </div>
                 </div>
@@ -418,7 +455,15 @@ export default function Calender() {
                                 <input onChange={handleChange} value={meeting.description} className="bg-gray-300 px-6 rounded-xl shadow-md my-2 py-2 w-full outline-none" type="text" name="description" id="description" />
                             </div>
                             <div>
-                                <p onClick={handleAdd} className="px-4 py-2 bg-gray-300 mt-6 shadow-2xl rounded-full cursor-pointer w-fit">add</p>
+                                <label htmlFor="startTime">startTime</label>
+                                <input onChange={handleChange} value={meeting.startTime} className="bg-gray-300 px-6 rounded-xl shadow-md my-2 py-2 w-full outline-none" type="text" name="startTime" id="startTime" />
+                            </div>
+                            <div>
+                                <label htmlFor="endTime">endTime</label>
+                                <input onChange={handleChange} value={meeting.endTime} className="bg-gray-300 px-6 rounded-xl shadow-md my-2 py-2 w-full outline-none" type="text" name="endTime" id="endTime" />
+                            </div>
+                            <div>
+                                <p onClick={handleAdd} className="px-4 py-2 bg-gray-300 hover:bg-gradient-to-br from-violet-200 to-pink-200 my-6 shadow-2xl rounded-full cursor-pointer w-fit ">add</p>
                             </div>
                         </div>
                     </div>
