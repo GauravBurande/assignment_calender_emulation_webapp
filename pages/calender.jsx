@@ -26,7 +26,8 @@ export default function Calender() {
 
     const [displayAllMeetings, setDisplayAllMeetings] = useState(false)
     const [displayMeeting, setDisplayMeeting] = useState(false)
-    const [meeting, setMeeting] = useState({ date: "", title: "", description: "", startTime: "", endTime: "" })
+    const emptyInputs = { date: "", title: "", description: "", startTime: "", endTime: "" }
+    const [meeting, setMeeting] = useState(emptyInputs)
     const [allmeetingsData, setAllMeetingsData] = useState([])
     const [fetchMeets, setFetchMeets] = useState(1)
 
@@ -63,7 +64,7 @@ export default function Calender() {
         }
         try {
             const meetingRef = collection(db, "meetingData");
-            await setDoc(doc(meetingRef, meeting.title), meetingData).then((data) => { setFetchMeets(Math.random()) })
+            await setDoc(doc(meetingRef, meeting.title), meetingData).then((data) => { setFetchMeets(Math.random()), setMeeting(emptyInputs) })
             toggleDisplayOfMeeting()
         } catch (e) {
             console.error("Error adding document: ", e);
