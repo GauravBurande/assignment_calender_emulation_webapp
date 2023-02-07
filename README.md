@@ -1,27 +1,23 @@
-# Next.js + Tailwind CSS Example
+You can visit the webapp here:
 
-This example shows how to use [Tailwind CSS](https://tailwindcss.com/) [(v3.2)](https://tailwindcss.com/blog/tailwindcss-v3-2) with Next.js. It follows the steps outlined in the official [Tailwind docs](https://tailwindcss.com/docs/guides/nextjs).
+[CalenderMeet](https://calendermeet.netlify.app/) 
 
-## Deploy your own
+If you want to run this webapp on your machine, do the following steps:
 
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example) or preview live with [StackBlitz](https://stackblitz.com/github/vercel/next.js/tree/canary/examples/with-tailwindcss)
+1. Clone this repo:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https://github.com/vercel/next.js/tree/canary/examples/with-tailwindcss&project-name=with-tailwindcss&repository-name=with-tailwindcss)
+`git clone <link of this repo>`
 
-## How to use
+2. Install the packages and dependencies:
 
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
+`npm i` or `npm install`
 
-```bash
-npx create-next-app --example with-tailwindcss with-tailwindcss-app
-```
+3. Create a local environment file `.env.local`
 
-```bash
-yarn create next-app --example with-tailwindcss with-tailwindcss-app
-```
+4. Create your own project on firebase and paste the api keys and other information directly in the `firebase.js` file or the required env variables in the env file
 
-```bash
-pnpm create next-app --example with-tailwindcss with-tailwindcss-app
-```
+5. Run `npm run dev` command in terminal. 
 
-Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
+6. Open the webapp on `localhost:3000` in the browser.
+
+7. Start playing with the webapp. 

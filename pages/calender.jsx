@@ -447,7 +447,7 @@ export default function Calender() {
                     </div>
 
                     <div>
-                        <div className="mt-10">
+                        <div className="mt-10 px-10 md:px-1">
                             <div>
                                 <label className="w-3/4" htmlFor="date">date (only DD)</label>
                                 <input onChange={handleChange} value={meeting.date} className="bg-gray-300 px-6 rounded-xl shadow-md my-2 py-2 w-full outline-none" type="text" name="date" id="date" />
