@@ -13,9 +13,11 @@ export default function Calender() {
     const userEmail = typeof window !== "undefined" && window.localStorage.getItem('userEmail')
 
     useEffect(() => {
-        if (!userEmail) {
-            router.push('/')
-        }
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                router.push('/')
+            }
+        })
     }, [])
 
     const context = useContext(UserContext)
