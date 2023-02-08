@@ -196,7 +196,7 @@ export default function Calender() {
                                         <td className="pt-6">
                                             <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100">3</p>
-                                                {meetingDates.includes(2) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
+                                                {meetingDates.includes(3) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td className="pt-6">
@@ -440,7 +440,7 @@ export default function Calender() {
                 displayMeeting && <div className="absolute transition-all duration-200 inset-0 flex flex-col min-h-[100vh] w-full items-center justify-center z-20 bg-white">
                     <div>
                         <div className="mt-10 px-10 md:px-1">
-                            <form>
+                            <form method="POST">
                                 <div>
                                     <label className="w-3/4" htmlFor="date">date (only DD)</label>
                                     <input onChange={handleChange} value={meeting.date} className="bg-gray-300 px-6 rounded-xl shadow-md my-2 py-2 w-full outline-none" type="text" name="date" id="date" required />
@@ -462,7 +462,7 @@ export default function Calender() {
                                     <input onChange={handleChange} value={meeting.endTime} className="bg-gray-300 px-6 rounded-xl shadow-md my-2 py-2 w-full outline-none" type="text" name="endTime" id="endTime" required={true} />
                                 </div>
                                 <div>
-                                    <button onClick={handleAdd} className="px-4 py-2 bg-gray-300 hover:bg-gradient-to-br from-violet-200 to-pink-200 disabled:bg-black my-6 shadow-2xl rounded-full cursor-pointer w-fit ">submit</button>
+                                    <button disabled={meeting.endTime == "" || meeting.description == "" || meeting.startTime == ""} onClick={handleAdd} className="px-4 py-2 bg-gray-300 hover:bg-gradient-to-br from-violet-200 to-pink-200 my-6 shadow-2xl rounded-full cursor-pointer w-fit ">submit</button>
                                 </div>
                             </form>
                         </div>
