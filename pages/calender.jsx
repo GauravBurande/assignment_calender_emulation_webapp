@@ -36,8 +36,16 @@ export default function Calender() {
         meetingDates.push(parseInt(meeting.meeting.date))
     })
 
+    const allDates = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", ""]
+
     const handleChange = (e) => {
-        setMeeting({ ...meeting, [e.target.name]: e.target.value })
+        if (e.target.name === 'date') {
+            if (allDates.includes(e.target.value)) {
+                setMeeting({ ...meeting, date: e.target.value })
+            }
+        } else {
+            setMeeting({ ...meeting, [e.target.name]: e.target.value })
+        }
     }
 
     const toggleDisplayAll = () => {
@@ -121,7 +129,7 @@ export default function Calender() {
                     <div className="md:py-16 md:pb-12 p-5 dark:bg-gray-800 rounded-xl bg-white">
                         <div className="px-4 flex items-center justify-between">
                             <h1 className="text-2xl font-bold dark:text-gray-100 text-gray-800">February 2023</h1>
-                            <p onClick={toggleDisplayOfMeeting} className="bg-gray-500 text-center text-white font-bold py-2 px-4 rounded-full cursor-pointer ml-4 hover:bg-gradient-to-br from-violet-200 to-pink-200 hover:text-black">Book A Meeting</p>
+                            <p onClick={toggleDisplayOfMeeting} className="bg-gray-500 text-center text-white font-bold hover:font-thin py-2 px-4 rounded-full cursor-pointer ml-4 hover:bg-gradient-to-br from-violet-200 to-pink-200 hover:text-black">Book A Meeting</p>
 
                         </div>
                         <div className="flex items-center justify-between pt-12 overflow-x-auto">
@@ -188,7 +196,7 @@ export default function Calender() {
                                         <td className="pt-6">
                                             <div className={`px-4 relative py-4 flex w-full justify-center`}>
                                                 <p className="text-2xl text-gray-500 dark:text-gray-100">3</p>
-                                                {meetingDates.includes(2) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
+                                                {meetingDates.includes(3) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
                                         <td className="pt-6">
@@ -349,18 +357,6 @@ export default function Calender() {
                                                 {meetingDates.includes(28) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
                                             </div>
                                         </td>
-                                        <td>
-                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
-                                                <p className="text-2xl text-gray-500 dark:text-gray-100 ">29</p>
-                                                {meetingDates.includes(29) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className={`px-4 relative py-4 flex w-full justify-center`}>
-                                                <p className="text-2xl text-gray-500 dark:text-gray-100 ">30</p>
-                                                {meetingDates.includes(30) && <div className="p-1 rounded-full h-fit bg-blue-500"></div>}
-                                            </div>
-                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -400,11 +396,11 @@ export default function Calender() {
                                         <div key={index}>
                                             <div className="md:w-[50vw] relative w-[70vw] my-3 rounded-2xl px-10 md:px-16 py-4 bg-gray-300">
                                                 <div className="flex items-center justify-between">
-                                                    <div className="font-bold text-xl">
+                                                    <div className="font-bold text-xl mr-2">
                                                         {meetingData.meeting.title}
                                                     </div>
-                                                    <div className="text-sm">
-                                                        <p>{meetingData.meeting.date} February, 2023</p>
+                                                    <div className="text-xs">
+                                                        <p>{meetingData.meeting.date} Feb, 2023</p>
                                                         <p>{meetingData.meeting.startTime} - {meetingData.meeting.endTime}</p>
                                                     </div>
                                                 </div>
@@ -415,7 +411,7 @@ export default function Calender() {
                                                 <div className="absolute group top-4 right-4">
                                                     <BsThreeDotsVertical />
 
-                                                    <div className="absolute space-y-2 top-0 -left-5 md: opacity-0 group-hover:opacity-100 p-3 rounded-xl bg-gray-500 cursor-pointer">
+                                                    <div className="absolute space-y-2 top-0 -left-5 hidden group-hover:block p-3 rounded-xl bg-gray-500 cursor-pointer">
                                                         <div onClick={() => { deleteMeeting(meetingData.meeting.title) }}>
                                                             delete
                                                         </div>
@@ -442,36 +438,33 @@ export default function Calender() {
 
             {
                 displayMeeting && <div className="absolute transition-all duration-200 inset-0 flex flex-col min-h-[100vh] w-full items-center justify-center z-20 bg-white">
-                    <div className="text-3xl px-32">
-                        {/* You don't have any meeting today. */}
-                        {/* <p className="font-bold py-5">Add Meeting</p> */}
-                    </div>
-
                     <div>
                         <div className="mt-10 px-10 md:px-1">
-                            <div>
-                                <label className="w-3/4" htmlFor="date">date (only DD)</label>
-                                <input onChange={handleChange} value={meeting.date} className="bg-gray-300 px-6 rounded-xl shadow-md my-2 py-2 w-full outline-none" type="text" name="date" id="date" />
-                            </div>
-                            <div>
-                                <label htmlFor="title">title</label>
-                                <input onChange={handleChange} value={meeting.title} className="bg-gray-300 px-6 rounded-xl shadow-md my-2 py-2 w-full outline-none" type="text" name="title" id="title" />
-                            </div>
-                            <div>
-                                <label htmlFor="description">description</label>
-                                <input onChange={handleChange} value={meeting.description} className="bg-gray-300 px-6 rounded-xl shadow-md my-2 py-2 w-full outline-none" type="text" name="description" id="description" />
-                            </div>
-                            <div>
-                                <label htmlFor="startTime">startTime</label>
-                                <input onChange={handleChange} value={meeting.startTime} className="bg-gray-300 px-6 rounded-xl shadow-md my-2 py-2 w-full outline-none" type="text" name="startTime" id="startTime" />
-                            </div>
-                            <div>
-                                <label htmlFor="endTime">endTime</label>
-                                <input onChange={handleChange} value={meeting.endTime} className="bg-gray-300 px-6 rounded-xl shadow-md my-2 py-2 w-full outline-none" type="text" name="endTime" id="endTime" />
-                            </div>
-                            <div>
-                                <p onClick={handleAdd} className="px-4 py-2 bg-gray-300 hover:bg-gradient-to-br from-violet-200 to-pink-200 my-6 shadow-2xl rounded-full cursor-pointer w-fit ">submit</p>
-                            </div>
+                            <form method="POST">
+                                <div>
+                                    <label className="w-3/4" htmlFor="date">date (only DD)</label>
+                                    <input onChange={handleChange} value={meeting.date} className="bg-gray-300 px-6 rounded-xl shadow-md my-2 py-2 w-full outline-none" type="text" name="date" id="date" required />
+                                </div>
+                                <div>
+                                    <label htmlFor="title">title</label>
+                                    <input onChange={handleChange} value={meeting.title} className="bg-gray-300 px-6 rounded-xl shadow-md my-2 py-2 w-full outline-none" type="text" name="title" id="title" required />
+                                </div>
+                                <div>
+                                    <label htmlFor="description">description</label>
+                                    <input onChange={handleChange} value={meeting.description} className="bg-gray-300 px-6 rounded-xl shadow-md my-2 py-2 w-full outline-none" type="text" name="description" id="description" required={true} />
+                                </div>
+                                <div>
+                                    <label htmlFor="startTime">startTime</label>
+                                    <input onChange={handleChange} value={meeting.startTime} className="bg-gray-300 px-6 rounded-xl shadow-md my-2 py-2 w-full outline-none" type="text" name="startTime" id="startTime" required={true} />
+                                </div>
+                                <div>
+                                    <label htmlFor="endTime">endTime</label>
+                                    <input onChange={handleChange} value={meeting.endTime} className="bg-gray-300 px-6 rounded-xl shadow-md my-2 py-2 w-full outline-none" type="text" name="endTime" id="endTime" required={true} />
+                                </div>
+                                <div>
+                                    <button disabled={meeting.endTime == "" || meeting.description == "" || meeting.startTime == ""} onClick={handleAdd} className="px-4 py-2 bg-gray-300 hover:bg-gradient-to-br from-violet-200 to-pink-200 my-6 shadow-2xl rounded-full cursor-pointer w-fit ">submit</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
 
