@@ -65,7 +65,8 @@ export default function Calender() {
         })
     }
 
-    const handleAdd = async () => {
+    const handleAdd = async (e) => {
+        e.preventDefault()
         const meetingData = {
             email: userData ? userData.email : userEmail,
             meeting
