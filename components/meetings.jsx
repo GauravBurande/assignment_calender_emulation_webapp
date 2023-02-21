@@ -1,5 +1,6 @@
 import React from 'react'
 import { BsThreeDotsVertical } from "react-icons/bs"
+import { GrClose } from "react-icons/gr"
 
 const Meetings = ({ allmeetingsData, deleteMeeting, editMeeting, toggleDisplayAll }) => {
     return (
